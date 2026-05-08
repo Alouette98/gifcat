@@ -26,6 +26,8 @@ export interface ExportOptions {
   width: number;
   height: number;
   overlays: Overlay[];
+  quality?: "standard" | "high";
+  fps?: number;
 }
 
 export async function exportGif(options: ExportOptions): Promise<string> {
@@ -34,6 +36,8 @@ export async function exportGif(options: ExportOptions): Promise<string> {
     outputPath: options.outputPath,
     width: options.width,
     height: options.height,
+    quality: options.quality ?? "standard",
+    fps: options.fps ?? 25,
     overlays: options.overlays
       .filter((o) => o.visible)
       .map(overlayToDto),

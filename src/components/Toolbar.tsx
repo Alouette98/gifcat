@@ -18,6 +18,7 @@ import styles from "./Toolbar.module.css";
 export function Toolbar() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quality, setQuality] = useState<"standard" | "high">("standard");
   const loadGif = usePlaybackStore((s) => s.loadGif);
   const durationMs = usePlaybackStore((s) => s.durationMs);
   const setBase = useProjectStore((s) => s.setBase);
@@ -204,6 +205,7 @@ export function Toolbar() {
         width: project.canvas.width,
         height: project.canvas.height,
         overlays: project.overlays,
+        quality,
       });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -236,6 +238,16 @@ export function Toolbar() {
             <Stamp size={16} />
             Watermark
           </button>
+          <label className={styles.quality}>
+            Quality
+            <select
+              value={quality}
+              onChange={(e) => setQuality(e.target.value as "standard" | "high")}
+            >
+              <option value="standard">Standard</option>
+              <option value="high">High (gifski)</option>
+            </select>
+          </label>
           <button onClick={handleExport} disabled={loading}>
             <Download size={16} />
             {loading ? "Exporting..." : "Export"}
