@@ -8,3 +8,9 @@
   color: #cdd6f4;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
+
+.main {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}

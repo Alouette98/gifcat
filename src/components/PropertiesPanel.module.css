@@ -1,0 +1,64 @@
+.panel {
+  position: absolute;
+  top: 48px;
+  right: 8px;
+  width: 240px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.panel h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cdd6f4;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row label {
+  font-size: 11px;
+  color: #a6adc8;
+  min-width: 50px;
+}
+
+.row input[type="number"],
+.row input[type="range"] {
+  flex: 1;
+  background: #313244;
+  border: 1px solid #45475a;
+  border-radius: 4px;
+  color: #cdd6f4;
+  font-size: 12px;
+  padding: 3px 6px;
+}
+
+.row input[type="number"] {
+  width: 60px;
+}
+
+.deleteBtn {
+  margin-top: 4px;
+  padding: 5px 10px;
+  background: #45475a;
+  border: 1px solid #585b70;
+  border-radius: 4px;
+  color: #f38ba8;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  background: #585b70;
+}
