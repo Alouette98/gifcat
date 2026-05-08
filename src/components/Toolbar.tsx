@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FolderOpen, ImagePlus } from "lucide-react";
+import { FolderOpen, ImagePlus, Type, Film, Stamp } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { decodeGif, framesToBitmaps } from "../ipc/gif";
 import { usePlaybackStore } from "../store/playbackStore";
@@ -9,6 +9,8 @@ import {
   createTiming,
   generateId,
   type ImageOverlay,
+  type TextOverlay,
+  type GifOverlay,
 } from "../types/overlay";
 import styles from "./Toolbar.module.css";
 
@@ -94,6 +96,94 @@ export function Toolbar() {
     }
   }
 
+  function handleAddText() {
+    const canvas = useProjectStore.getState().project.canvas;
+    const overlay: TextOverlay = {
+      id: generateId(),
+      type: "text",
+      name: "Text",
+      text: "Your text",
+      fontFamily: "sans-serif",
+      fontSize: 48,
+      color: "#ffffff",
+      strokeColor: "#000000",
+      strokeWidth: 0,
+      shadowColor: "rgba(0,0,0,0.5)",
+      shadowBlur: 0,
+      align: "center",
+      transform: createTransform(canvas.width / 2, canvas.height / 2),
+      opacity: 1,
+      timing: createTiming(durationMs),
+      visible: true,
+      locked: false,
+    };
+    apply({ type: "addOverlay", overlay });
+  }
+
+  async function handleAddGif() {
+    setError(null);
+    const selected = await open({
+      filters: [{ name: "GIF", extensions: ["gif"] }],
+      multiple: false,
+      directory: false,
+    });
+    if (!selected) return;
+
+    const path = selected as string;
+    try {
+      const decoded = await decodeGif(path);
+      const bitmaps = await framesToBitmaps(decoded);
+
+      const overlay: GifOverlay = {
+        id: generateId(),
+        type: "gif",
+        name: path.split("/").pop() || "GIF",
+        sourcePath: path,
+        frames: bitmaps,
+        delaysMs: decoded.delaysMs,
+        naturalWidth: decoded.width,
+        naturalHeight: decoded.height,
+        transform: createTransform(),
+        opacity: 1,
+        timing: createTiming(durationMs),
+        visible: true,
+        locked: false,
+      };
+
+      apply({ type: "addOverlay", overlay });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  function handleAddWatermark() {
+    const canvas = useProjectStore.getState().project.canvas;
+    const margin = 20;
+    const overlay: TextOverlay = {
+      id: generateId(),
+      type: "text",
+      name: "Watermark",
+      text: "gifcat",
+      fontFamily: "sans-serif",
+      fontSize: 24,
+      color: "rgba(255,255,255,0.5)",
+      strokeColor: "rgba(0,0,0,0.3)",
+      strokeWidth: 1,
+      shadowColor: "rgba(0,0,0,0)",
+      shadowBlur: 0,
+      align: "right",
+      transform: createTransform(
+        canvas.width - margin - 40,
+        canvas.height - margin - 12,
+      ),
+      opacity: 0.5,
+      timing: createTiming(durationMs),
+      visible: true,
+      locked: false,
+    };
+    apply({ type: "addOverlay", overlay });
+  }
+
   return (
     <div className={styles.toolbar}>
       <button onClick={handleOpenGif} disabled={loading}>
@@ -101,10 +191,24 @@ export function Toolbar() {
         {loading ? "Loading..." : "Open GIF"}
       </button>
       {durationMs > 0 && (
-        <button onClick={handleAddImage}>
-          <ImagePlus size={16} />
-          Add Image
-        </button>
+        <>
+          <button onClick={handleAddImage}>
+            <ImagePlus size={16} />
+            Add Image
+          </button>
+          <button onClick={handleAddText}>
+            <Type size={16} />
+            Add Text
+          </button>
+          <button onClick={handleAddGif}>
+            <Film size={16} />
+            Add GIF
+          </button>
+          <button onClick={handleAddWatermark}>
+            <Stamp size={16} />
+            Watermark
+          </button>
+        </>
       )}
       {error && <span className={styles.status}>{error}</span>}
     </div>

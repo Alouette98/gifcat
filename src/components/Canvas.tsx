@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback, type MouseEvent } from "react";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
 import { pickFrameIndex } from "../engine/framePicker";
-import type { Overlay, ImageOverlay } from "../types/overlay";
+import type { Overlay, ImageOverlay, GifOverlay, TextOverlay } from "../types/overlay";
 import styles from "./Canvas.module.css";
 
 function getOverlayOpacity(overlay: Overlay, cursorMs: number): number {
@@ -30,6 +30,14 @@ function getOverlayBounds(overlay: Overlay) {
   if (overlay.type === "image") {
     w = (overlay as ImageOverlay).naturalWidth * scale;
     h = (overlay as ImageOverlay).naturalHeight * scale;
+  } else if (overlay.type === "gif") {
+    w = (overlay as GifOverlay).naturalWidth * scale;
+    h = (overlay as GifOverlay).naturalHeight * scale;
+  } else if (overlay.type === "text") {
+    const txt = overlay as TextOverlay;
+    const fontSize = txt.fontSize * scale;
+    w = fontSize * Math.max(txt.text.length * 0.6, 1);
+    h = fontSize * 1.3;
   }
   return { x: x - w / 2, y: y - h / 2, w, h };
 }
@@ -64,6 +72,39 @@ function drawOverlay(
       const h = img.naturalHeight * scale;
       ctx.drawImage(img.bitmap, -w / 2, -h / 2, w, h);
     }
+  } else if (overlay.type === "gif") {
+    const gif = overlay as GifOverlay;
+    if (gif.frames.length > 0) {
+      const gifDuration = gif.delaysMs.reduce((a, b) => a + b, 0);
+      const gifCursor = gifDuration > 0 ? cursorMs % gifDuration : 0;
+      const idx = pickFrameIndex(gif.delaysMs, gifCursor);
+      const frame = gif.frames[idx];
+      if (frame) {
+        const w = gif.naturalWidth * scale;
+        const h = gif.naturalHeight * scale;
+        ctx.drawImage(frame, -w / 2, -h / 2, w, h);
+      }
+    }
+  } else if (overlay.type === "text") {
+    const txt = overlay as TextOverlay;
+    const fontSize = txt.fontSize * scale;
+    ctx.font = `${fontSize}px ${txt.fontFamily}`;
+    ctx.textAlign = txt.align;
+    ctx.textBaseline = "middle";
+
+    if (txt.shadowBlur > 0) {
+      ctx.shadowColor = txt.shadowColor;
+      ctx.shadowBlur = txt.shadowBlur * scale;
+    }
+
+    if (txt.strokeWidth > 0) {
+      ctx.strokeStyle = txt.strokeColor;
+      ctx.lineWidth = txt.strokeWidth * scale;
+      ctx.strokeText(txt.text, 0, 0);
+    }
+
+    ctx.fillStyle = txt.color;
+    ctx.fillText(txt.text, 0, 0);
   }
 
   ctx.restore();
