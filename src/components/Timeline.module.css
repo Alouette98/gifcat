@@ -1,0 +1,40 @@
+.timeline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: #1e1e2e;
+  border-top: 1px solid #313244;
+}
+
+.timeline button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #313244;
+  border: 1px solid #45475a;
+  border-radius: 6px;
+  color: #cdd6f4;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.timeline button:hover {
+  background: #45475a;
+}
+
+.scrubber {
+  flex: 1;
+  height: 4px;
+  accent-color: #89b4fa;
+}
+
+.time {
+  font-size: 12px;
+  color: #a6adc8;
+  font-variant-numeric: tabular-nums;
+  min-width: 90px;
+  text-align: right;
+}
