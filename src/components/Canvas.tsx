@@ -1,7 +1,57 @@
 import { useRef, useEffect } from "react";
 import { usePlaybackStore } from "../store/playbackStore";
+import { useProjectStore } from "../store/projectStore";
 import { pickFrameIndex } from "../engine/framePicker";
+import type { Overlay, ImageOverlay } from "../types/overlay";
 import styles from "./Canvas.module.css";
+
+function getOverlayOpacity(overlay: Overlay, cursorMs: number): number {
+  const { timing, opacity } = overlay;
+  if (cursorMs < timing.startMs || cursorMs > timing.endMs) return 0;
+
+  let fade = 1;
+  const elapsed = cursorMs - timing.startMs;
+  const remaining = timing.endMs - cursorMs;
+
+  if (timing.fadeInMs > 0 && elapsed < timing.fadeInMs) {
+    fade = elapsed / timing.fadeInMs;
+  }
+  if (timing.fadeOutMs > 0 && remaining < timing.fadeOutMs) {
+    fade = Math.min(fade, remaining / timing.fadeOutMs);
+  }
+
+  return opacity * fade;
+}
+
+function drawOverlay(
+  ctx: CanvasRenderingContext2D,
+  overlay: Overlay,
+  cursorMs: number,
+) {
+  if (!overlay.visible) return;
+  const alpha = getOverlayOpacity(overlay, cursorMs);
+  if (alpha <= 0) return;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  const { x, y, scale, rotationDeg } = overlay.transform;
+  ctx.translate(x, y);
+  if (rotationDeg !== 0) {
+    ctx.rotate((rotationDeg * Math.PI) / 180);
+  }
+
+  if (overlay.type === "image") {
+    const img = overlay as ImageOverlay;
+    if (img.bitmap) {
+      const w = img.naturalWidth * scale;
+      const h = img.naturalHeight * scale;
+      ctx.drawImage(img.bitmap, -w / 2, -h / 2, w, h);
+    }
+  }
+
+  ctx.restore();
+}
 
 export function Canvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -11,6 +61,8 @@ export function Canvas() {
   const { frames, delaysMs, width, height, playing, cursorMs, setCursorMs } =
     usePlaybackStore();
 
+  const overlays = useProjectStore((s) => s.project.overlays);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || frames.length === 0) return;
@@ -19,12 +71,17 @@ export function Canvas() {
     if (!ctx) return;
 
     function draw() {
-      const state = usePlaybackStore.getState();
-      const idx = pickFrameIndex(state.delaysMs, state.cursorMs);
-      const frame = state.frames[idx];
+      const playback = usePlaybackStore.getState();
+      const project = useProjectStore.getState().project;
+      const idx = pickFrameIndex(playback.delaysMs, playback.cursorMs);
+      const frame = playback.frames[idx];
       if (frame && ctx) {
-        ctx.clearRect(0, 0, state.width, state.height);
+        ctx.clearRect(0, 0, playback.width, playback.height);
         ctx.drawImage(frame, 0, 0);
+
+        for (const overlay of project.overlays) {
+          drawOverlay(ctx, overlay, playback.cursorMs);
+        }
       }
     }
 
@@ -50,7 +107,7 @@ export function Canvas() {
     return () => {
       cancelAnimationFrame(rafRef.current);
     };
-  }, [frames, delaysMs, width, height, playing, cursorMs, setCursorMs]);
+  }, [frames, delaysMs, width, height, playing, cursorMs, setCursorMs, overlays]);
 
   if (frames.length === 0) {
     return (
