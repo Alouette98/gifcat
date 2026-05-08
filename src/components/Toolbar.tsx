@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { FolderOpen, ImagePlus, Type, Film, Stamp } from "lucide-react";
-import { open } from "@tauri-apps/plugin-dialog";
+import { FolderOpen, ImagePlus, Type, Film, Stamp, Download } from "lucide-react";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import { decodeGif, framesToBitmaps } from "../ipc/gif";
+import { exportGif } from "../ipc/export";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
 import {
@@ -184,6 +185,33 @@ export function Toolbar() {
     apply({ type: "addOverlay", overlay });
   }
 
+  async function handleExport() {
+    setError(null);
+    const project = useProjectStore.getState().project;
+    if (!project.base) return;
+
+    const outputPath = await save({
+      filters: [{ name: "GIF", extensions: ["gif"] }],
+      defaultPath: "output.gif",
+    });
+    if (!outputPath) return;
+
+    setLoading(true);
+    try {
+      await exportGif({
+        basePath: project.base.sourcePath,
+        outputPath,
+        width: project.canvas.width,
+        height: project.canvas.height,
+        overlays: project.overlays,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className={styles.toolbar}>
       <button onClick={handleOpenGif} disabled={loading}>
@@ -207,6 +235,10 @@ export function Toolbar() {
           <button onClick={handleAddWatermark}>
             <Stamp size={16} />
             Watermark
+          </button>
+          <button onClick={handleExport} disabled={loading}>
+            <Download size={16} />
+            {loading ? "Exporting..." : "Export"}
           </button>
         </>
       )}
