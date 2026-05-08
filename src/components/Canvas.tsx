@@ -2,112 +2,17 @@ import { useRef, useEffect, useCallback, type MouseEvent } from "react";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
 import { pickFrameIndex } from "../engine/framePicker";
-import type { Overlay, ImageOverlay, GifOverlay, TextOverlay } from "../types/overlay";
+import {
+  drawFrame,
+  getOverlayBounds,
+  getOverlayOpacity,
+} from "../engine/compose";
+import type { Overlay } from "../types/overlay";
 import styles from "./Canvas.module.css";
-
-function getOverlayOpacity(overlay: Overlay, cursorMs: number): number {
-  const { timing, opacity } = overlay;
-  if (cursorMs < timing.startMs || cursorMs > timing.endMs) return 0;
-
-  let fade = 1;
-  const elapsed = cursorMs - timing.startMs;
-  const remaining = timing.endMs - cursorMs;
-
-  if (timing.fadeInMs > 0 && elapsed < timing.fadeInMs) {
-    fade = elapsed / timing.fadeInMs;
-  }
-  if (timing.fadeOutMs > 0 && remaining < timing.fadeOutMs) {
-    fade = Math.min(fade, remaining / timing.fadeOutMs);
-  }
-
-  return opacity * fade;
-}
-
-function getOverlayBounds(overlay: Overlay) {
-  const { x, y, scale } = overlay.transform;
-  let w = 0;
-  let h = 0;
-  if (overlay.type === "image") {
-    w = (overlay as ImageOverlay).naturalWidth * scale;
-    h = (overlay as ImageOverlay).naturalHeight * scale;
-  } else if (overlay.type === "gif") {
-    w = (overlay as GifOverlay).naturalWidth * scale;
-    h = (overlay as GifOverlay).naturalHeight * scale;
-  } else if (overlay.type === "text") {
-    const txt = overlay as TextOverlay;
-    const fontSize = txt.fontSize * scale;
-    w = fontSize * Math.max(txt.text.length * 0.6, 1);
-    h = fontSize * 1.3;
-  }
-  return { x: x - w / 2, y: y - h / 2, w, h };
-}
 
 function hitTest(overlay: Overlay, px: number, py: number): boolean {
   const { x, y, w, h } = getOverlayBounds(overlay);
   return px >= x && px <= x + w && py >= y && py <= y + h;
-}
-
-function drawOverlay(
-  ctx: CanvasRenderingContext2D,
-  overlay: Overlay,
-  cursorMs: number,
-) {
-  if (!overlay.visible) return;
-  const alpha = getOverlayOpacity(overlay, cursorMs);
-  if (alpha <= 0) return;
-
-  ctx.save();
-  ctx.globalAlpha = alpha;
-
-  const { x, y, scale, rotationDeg } = overlay.transform;
-  ctx.translate(x, y);
-  if (rotationDeg !== 0) {
-    ctx.rotate((rotationDeg * Math.PI) / 180);
-  }
-
-  if (overlay.type === "image") {
-    const img = overlay as ImageOverlay;
-    if (img.bitmap) {
-      const w = img.naturalWidth * scale;
-      const h = img.naturalHeight * scale;
-      ctx.drawImage(img.bitmap, -w / 2, -h / 2, w, h);
-    }
-  } else if (overlay.type === "gif") {
-    const gif = overlay as GifOverlay;
-    if (gif.frames.length > 0) {
-      const gifDuration = gif.delaysMs.reduce((a, b) => a + b, 0);
-      const gifCursor = gifDuration > 0 ? cursorMs % gifDuration : 0;
-      const idx = pickFrameIndex(gif.delaysMs, gifCursor);
-      const frame = gif.frames[idx];
-      if (frame) {
-        const w = gif.naturalWidth * scale;
-        const h = gif.naturalHeight * scale;
-        ctx.drawImage(frame, -w / 2, -h / 2, w, h);
-      }
-    }
-  } else if (overlay.type === "text") {
-    const txt = overlay as TextOverlay;
-    const fontSize = txt.fontSize * scale;
-    ctx.font = `${fontSize}px ${txt.fontFamily}`;
-    ctx.textAlign = txt.align;
-    ctx.textBaseline = "middle";
-
-    if (txt.shadowBlur > 0) {
-      ctx.shadowColor = txt.shadowColor;
-      ctx.shadowBlur = txt.shadowBlur * scale;
-    }
-
-    if (txt.strokeWidth > 0) {
-      ctx.strokeStyle = txt.strokeColor;
-      ctx.lineWidth = txt.strokeWidth * scale;
-      ctx.strokeText(txt.text, 0, 0);
-    }
-
-    ctx.fillStyle = txt.color;
-    ctx.fillText(txt.text, 0, 0);
-  }
-
-  ctx.restore();
 }
 
 function drawSelectionBox(ctx: CanvasRenderingContext2D, overlay: Overlay) {
@@ -261,13 +166,15 @@ export function Canvas() {
       const { project, selectedOverlayId } = useProjectStore.getState();
       const idx = pickFrameIndex(playback.delaysMs, playback.cursorMs);
       const frame = playback.frames[idx];
-      if (frame && ctx) {
-        ctx.clearRect(0, 0, playback.width, playback.height);
-        ctx.drawImage(frame, 0, 0);
-
-        for (const overlay of project.overlays) {
-          drawOverlay(ctx, overlay, playback.cursorMs);
-        }
+      if (ctx) {
+        drawFrame(
+          ctx,
+          frame ?? null,
+          project.overlays,
+          playback.cursorMs,
+          playback.width,
+          playback.height,
+        );
 
         if (selectedOverlayId) {
           const sel = project.overlays.find((o) => o.id === selectedOverlayId);

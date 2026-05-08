@@ -2,7 +2,12 @@ import { useState } from "react";
 import { FolderOpen, ImagePlus, Type, Film, Stamp, Download } from "lucide-react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { decodeGif, framesToBitmaps } from "../ipc/gif";
-import { exportGif } from "../ipc/export";
+import {
+  createExportTempdir,
+  exportGif,
+  writeExportFrame,
+} from "../ipc/export";
+import { rasterizeFrames } from "../engine/rasterize";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
 import {
@@ -15,9 +20,12 @@ import {
 } from "../types/overlay";
 import styles from "./Toolbar.module.css";
 
+const EXPORT_FPS = 25;
+
 export function Toolbar() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [quality, setQuality] = useState<"standard" | "high">("standard");
   const loadGif = usePlaybackStore((s) => s.loadGif);
   const durationMs = usePlaybackStore((s) => s.durationMs);
@@ -188,8 +196,10 @@ export function Toolbar() {
 
   async function handleExport() {
     setError(null);
+    setStatus(null);
     const project = useProjectStore.getState().project;
-    if (!project.base) return;
+    const playback = usePlaybackStore.getState();
+    if (!project.base || playback.frames.length === 0) return;
 
     const outputPath = await save({
       filters: [{ name: "GIF", extensions: ["gif"] }],
@@ -199,16 +209,38 @@ export function Toolbar() {
 
     setLoading(true);
     try {
-      await exportGif({
-        basePath: project.base.sourcePath,
-        outputPath,
+      const framesDir = await createExportTempdir();
+
+      setStatus("Rasterizing frames...");
+      const frames = await rasterizeFrames({
         width: project.canvas.width,
         height: project.canvas.height,
-        overlays: project.overlays,
+        baseFrames: playback.frames,
+        baseDelaysMs: playback.delaysMs,
+        totalDurationMs: playback.durationMs,
+        fps: EXPORT_FPS,
+        overlays: project.overlays.filter((o) => o.visible),
+        onProgress: (done, total) => {
+          setStatus(`Rasterizing ${done}/${total}`);
+        },
+      });
+
+      setStatus(`Writing ${frames.length} frames...`);
+      for (const f of frames) {
+        await writeExportFrame(framesDir, f.index, f.png);
+      }
+
+      setStatus("Encoding GIF...");
+      await exportGif({
+        outputPath,
+        framesDir,
+        fps: EXPORT_FPS,
         quality,
       });
+      setStatus("Done");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
+      setStatus(null);
     } finally {
       setLoading(false);
     }
@@ -255,6 +287,7 @@ export function Toolbar() {
         </>
       )}
       {error && <span className={styles.status}>{error}</span>}
+      {!error && status && <span className={styles.status}>{status}</span>}
     </div>
   );
 }
