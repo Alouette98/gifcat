@@ -1,9 +1,11 @@
+import { useTranslation } from "react-i18next";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
 import type { Overlay, TextOverlay } from "../types/overlay";
 import styles from "./PropertiesPanel.module.css";
 
 export function PropertiesPanel() {
+  const { t } = useTranslation();
   const selectedId = useProjectStore((s) => s.selectedOverlayId);
   const overlays = useProjectStore((s) => s.project.overlays);
   const apply = useProjectStore((s) => s.apply);
@@ -14,7 +16,7 @@ export function PropertiesPanel() {
   if (!overlay) {
     return (
       <aside className={styles.panel}>
-        <div className={styles.empty}>Select an overlay to edit</div>
+        <div className={styles.empty}>{t("properties.empty")}</div>
       </aside>
     );
   }
@@ -42,7 +44,7 @@ export function PropertiesPanel() {
 
       <div className={styles.rowGrid}>
         <div className={styles.field}>
-          <label>X</label>
+          <label>{t("properties.x")}</label>
           <input
             type="number"
             value={Math.round(overlay.transform.x)}
@@ -50,7 +52,7 @@ export function PropertiesPanel() {
           />
         </div>
         <div className={styles.field}>
-          <label>Y</label>
+          <label>{t("properties.y")}</label>
           <input
             type="number"
             value={Math.round(overlay.transform.y)}
@@ -60,7 +62,7 @@ export function PropertiesPanel() {
       </div>
 
       <div className={styles.field}>
-        <label>Scale · {(overlay.transform.scale * 100).toFixed(0)}%</label>
+        <label>{t("properties.scale")} · {(overlay.transform.scale * 100).toFixed(0)}%</label>
         <input
           type="range"
           min={0.05}
@@ -73,7 +75,7 @@ export function PropertiesPanel() {
 
       <div className={styles.rowGrid}>
         <div className={styles.field}>
-          <label>Rotation (deg)</label>
+          <label>{t("properties.rotation")}</label>
           <input
             type="number"
             value={Math.round(overlay.transform.rotationDeg)}
@@ -81,7 +83,7 @@ export function PropertiesPanel() {
           />
         </div>
         <div className={styles.field}>
-          <label>Opacity</label>
+          <label>{t("properties.opacity")}</label>
           <input
             type="range"
             min={0}
@@ -98,10 +100,10 @@ export function PropertiesPanel() {
       )}
 
       <div className={styles.section}>
-        <div className={styles.sectionLabel}>Timing</div>
+        <div className={styles.sectionLabel}>{t("properties.timing")}</div>
         <div className={styles.rowGrid}>
           <div className={styles.field}>
-            <label>Start (ms)</label>
+            <label>{t("properties.startMs")}</label>
             <input
               type="number"
               value={overlay.timing.startMs}
@@ -109,7 +111,7 @@ export function PropertiesPanel() {
             />
           </div>
           <div className={styles.field}>
-            <label>End (ms)</label>
+            <label>{t("properties.endMs")}</label>
             <input
               type="number"
               value={overlay.timing.endMs}
@@ -117,7 +119,7 @@ export function PropertiesPanel() {
             />
           </div>
           <div className={styles.field}>
-            <label>Fade In</label>
+            <label>{t("properties.fadeIn")}</label>
             <input
               type="number"
               min={0}
@@ -126,7 +128,7 @@ export function PropertiesPanel() {
             />
           </div>
           <div className={styles.field}>
-            <label>Fade Out</label>
+            <label>{t("properties.fadeOut")}</label>
             <input
               type="number"
               min={0}
@@ -141,7 +143,7 @@ export function PropertiesPanel() {
         className={styles.deleteBtn}
         onClick={() => apply({ type: "removeOverlay", id: overlay.id })}
       >
-        Delete Overlay
+        {t("properties.delete")}
       </button>
     </aside>
   );
@@ -154,12 +156,13 @@ function TextProperties({
   overlay: TextOverlay;
   update: (patch: Partial<TextOverlay>) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className={styles.section}>
-      <div className={styles.sectionLabel}>Text</div>
+      <div className={styles.sectionLabel}>{t("properties.text")}</div>
 
       <div className={styles.field}>
-        <label>Content</label>
+        <label>{t("properties.content")}</label>
         <input
           type="text"
           value={overlay.text}
@@ -169,7 +172,7 @@ function TextProperties({
 
       <div className={styles.rowGrid}>
         <div className={styles.field}>
-          <label>Font</label>
+          <label>{t("properties.font")}</label>
           <select
             value={overlay.fontFamily}
             onChange={(e) => update({ fontFamily: e.target.value })}
@@ -183,7 +186,7 @@ function TextProperties({
           </select>
         </div>
         <div className={styles.field}>
-          <label>Size</label>
+          <label>{t("properties.size")}</label>
           <input
             type="number"
             min={8}
@@ -196,7 +199,7 @@ function TextProperties({
 
       <div className={styles.rowGrid}>
         <div className={styles.field}>
-          <label>Color</label>
+          <label>{t("properties.color")}</label>
           <input
             type="color"
             value={overlay.color}
@@ -204,21 +207,21 @@ function TextProperties({
           />
         </div>
         <div className={styles.field}>
-          <label>Align</label>
+          <label>{t("properties.align")}</label>
           <select
             value={overlay.align}
             onChange={(e) => update({ align: e.target.value as TextOverlay["align"] })}
           >
-            <option value="left">Left</option>
-            <option value="center">Center</option>
-            <option value="right">Right</option>
+            <option value="left">{t("properties.alignLeft")}</option>
+            <option value="center">{t("properties.alignCenter")}</option>
+            <option value="right">{t("properties.alignRight")}</option>
           </select>
         </div>
       </div>
 
       <div className={styles.rowGrid}>
         <div className={styles.field}>
-          <label>Stroke color</label>
+          <label>{t("properties.strokeColor")}</label>
           <input
             type="color"
             value={overlay.strokeColor}
@@ -226,7 +229,7 @@ function TextProperties({
           />
         </div>
         <div className={styles.field}>
-          <label>Stroke width</label>
+          <label>{t("properties.strokeWidth")}</label>
           <input
             type="number"
             min={0}
@@ -236,7 +239,7 @@ function TextProperties({
           />
         </div>
         <div className={styles.field}>
-          <label>Shadow color</label>
+          <label>{t("properties.shadowColor")}</label>
           <input
             type="color"
             value={overlay.shadowColor.startsWith("#") ? overlay.shadowColor : "#000000"}
@@ -244,7 +247,7 @@ function TextProperties({
           />
         </div>
         <div className={styles.field}>
-          <label>Shadow blur</label>
+          <label>{t("properties.shadowBlur")}</label>
           <input
             type="number"
             min={0}

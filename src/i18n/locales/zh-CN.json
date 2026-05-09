@@ -1,0 +1,95 @@
+{
+  "toolbar": {
+    "openGif": "打开 GIF",
+    "loading": "载入中…",
+    "addImage": "添加图片",
+    "addText": "添加文字",
+    "addGif": "添加 GIF",
+    "watermark": "水印",
+    "quality": "画质",
+    "qualityStandard": "标准",
+    "qualityHigh": "高画质 (gifski)",
+    "export": "导出",
+    "exporting": "导出中…",
+    "settings": "设置",
+    "rasterizing": "正在栅格化 {{done}}/{{total}}",
+    "writingFrames": "正在写入 {{count}} 帧…",
+    "encoding": "正在编码 GIF…",
+    "done": "完成"
+  },
+  "properties": {
+    "empty": "选中一个图层进行编辑",
+    "x": "X",
+    "y": "Y",
+    "scale": "缩放",
+    "rotation": "旋转 (度)",
+    "opacity": "不透明度",
+    "timing": "时间轴",
+    "startMs": "开始 (ms)",
+    "endMs": "结束 (ms)",
+    "fadeIn": "淡入",
+    "fadeOut": "淡出",
+    "delete": "删除图层",
+    "text": "文字",
+    "content": "内容",
+    "font": "字体",
+    "size": "字号",
+    "color": "颜色",
+    "align": "对齐",
+    "alignLeft": "左",
+    "alignCenter": "居中",
+    "alignRight": "右",
+    "strokeColor": "描边色",
+    "strokeWidth": "描边宽度",
+    "shadowColor": "阴影色",
+    "shadowBlur": "阴影模糊"
+  },
+  "timeline": {
+    "play": "播放",
+    "pause": "暂停"
+  },
+  "settings": {
+    "title": "设置",
+    "tabs": {
+      "general": "通用",
+      "extensions": "扩展",
+      "about": "关于"
+    },
+    "general": {
+      "title": "通用",
+      "language": "语言",
+      "languageHint": "重启应用后菜单会完全刷新。",
+      "launchAtLogin": "开机自启",
+      "launchAtLoginHint": "登录系统时自动打开 gifcat。"
+    },
+    "extensions": {
+      "title": "扩展",
+      "subtitle": "导出时 gifcat 会调用的运行时工具。通过 Homebrew 安装，实际命令会在执行前展示。",
+      "checking": "检测中…",
+      "installed": "已安装",
+      "notInstalled": "未安装",
+      "install": "通过 Homebrew 安装",
+      "installing": "安装中…",
+      "reinstall": "重新安装",
+      "reinstalling": "重新安装中…",
+      "license": "许可证",
+      "ffmpeg": {
+        "name": "ffmpeg",
+        "description": "标准画质导出所必需。"
+      },
+      "gifski": {
+        "name": "gifski",
+        "description": "可选。用于高画质导出的更优 GIF 编码器。",
+        "note": "通过本机包管理器安装；gifcat 不分发该二进制。"
+      }
+    },
+    "about": {
+      "title": "关于",
+      "version": "版本",
+      "build": "构建",
+      "tagline": "一个开源的 GIF 编辑器。",
+      "repository": "仓库",
+      "license": "许可证"
+    }
+  }
+}

@@ -1,36 +1,46 @@
 import { useEffect, useState } from "react";
-import { getVersion } from "@tauri-apps/api/app";
+import { useTranslation } from "react-i18next";
+import { getVersion, getTauriVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
-import { SlidersHorizontal, Puzzle } from "lucide-react";
+import { SlidersHorizontal, Puzzle, Info } from "lucide-react";
+import { SUPPORTED_LANGUAGES, type LanguageCode } from "../i18n";
 import styles from "./SettingsApp.module.css";
 
-type Tab = "general" | "extensions";
+type Tab = "general" | "extensions" | "about";
 
 export function SettingsApp() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("general");
 
   return (
     <div className={styles.root}>
       <aside className={styles.rail}>
-        <div className={styles.brand}>Settings</div>
+        <div className={styles.brand}>{t("settings.title")}</div>
         <nav className={styles.nav}>
           <RailItem
             active={tab === "general"}
             onClick={() => setTab("general")}
             icon={<SlidersHorizontal size={15} />}
-            label="General"
+            label={t("settings.tabs.general")}
           />
           <RailItem
             active={tab === "extensions"}
             onClick={() => setTab("extensions")}
             icon={<Puzzle size={15} />}
-            label="Extensions"
+            label={t("settings.tabs.extensions")}
+          />
+          <RailItem
+            active={tab === "about"}
+            onClick={() => setTab("about")}
+            icon={<Info size={15} />}
+            label={t("settings.tabs.about")}
           />
         </nav>
       </aside>
       <main className={styles.content}>
         {tab === "general" && <GeneralTab />}
         {tab === "extensions" && <ExtensionsTab />}
+        {tab === "about" && <AboutTab />}
       </main>
     </div>
   );
@@ -59,17 +69,12 @@ function RailItem({
 }
 
 function GeneralTab() {
-  const [version, setVersion] = useState<string>("—");
+  const { t, i18n } = useTranslation();
   const [launchAtLogin, setLaunchAtLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      try {
-        setVersion(await getVersion());
-      } catch {
-        setVersion("dev");
-      }
       try {
         const enabled = await invoke<boolean>("autostart_is_enabled");
         setLaunchAtLogin(enabled);
@@ -90,22 +95,39 @@ function GeneralTab() {
     }
   }
 
+  function changeLanguage(code: LanguageCode) {
+    i18n.changeLanguage(code);
+  }
+
+  const currentLang = (i18n.resolvedLanguage ?? "en") as LanguageCode;
+
   return (
     <div className={styles.pane}>
-      <h2 className={styles.paneTitle}>General</h2>
+      <h2 className={styles.paneTitle}>{t("settings.general.title")}</h2>
 
       <section className={styles.section}>
         <div className={styles.row}>
-          <div className={styles.rowLabel}>Version</div>
-          <div className={styles.rowValue}>{version}</div>
+          <div>
+            <div className={styles.rowLabel}>{t("settings.general.language")}</div>
+            <div className={styles.rowHint}>{t("settings.general.languageHint")}</div>
+          </div>
+          <select
+            className={styles.select}
+            value={currentLang}
+            onChange={(e) => changeLanguage(e.target.value as LanguageCode)}
+          >
+            {SUPPORTED_LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>
+                {l.label}
+              </option>
+            ))}
+          </select>
         </div>
         <div className={styles.divider} />
         <div className={styles.row}>
           <div>
-            <div className={styles.rowLabel}>Launch at login</div>
-            <div className={styles.rowHint}>
-              Open gifcat automatically when you sign in.
-            </div>
+            <div className={styles.rowLabel}>{t("settings.general.launchAtLogin")}</div>
+            <div className={styles.rowHint}>{t("settings.general.launchAtLoginHint")}</div>
           </div>
           <Toggle
             checked={launchAtLogin}
@@ -148,30 +170,17 @@ interface ExtensionStatus {
 
 interface ExtensionMeta {
   id: "ffmpeg" | "gifski";
-  name: string;
-  description: string;
   license: string;
-  licenseNote?: string;
+  hasNote?: boolean;
 }
 
 const EXTENSIONS: ExtensionMeta[] = [
-  {
-    id: "ffmpeg",
-    name: "ffmpeg",
-    description: "Required for standard GIF export.",
-    license: "LGPL / GPL",
-  },
-  {
-    id: "gifski",
-    name: "gifski",
-    description: "Optional. Higher-quality GIF encoder for the High Quality export mode.",
-    license: "AGPL-3.0",
-    licenseNote:
-      "Installed via your local package manager; gifcat does not distribute the binary.",
-  },
+  { id: "ffmpeg", license: "LGPL / GPL" },
+  { id: "gifski", license: "AGPL-3.0", hasNote: true },
 ];
 
 function ExtensionsTab() {
+  const { t } = useTranslation();
   const [statuses, setStatuses] = useState<Record<string, ExtensionStatus>>({});
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -207,11 +216,8 @@ function ExtensionsTab() {
 
   return (
     <div className={styles.pane}>
-      <h2 className={styles.paneTitle}>Extensions</h2>
-      <p className={styles.paneSubtitle}>
-        Runtime tools gifcat can call when you export. Install through Homebrew; the
-        exact command is shown before it runs.
-      </p>
+      <h2 className={styles.paneTitle}>{t("settings.extensions.title")}</h2>
+      <p className={styles.paneSubtitle}>{t("settings.extensions.subtitle")}</p>
 
       <div className={styles.cards}>
         {EXTENSIONS.map((ext) => {
@@ -221,8 +227,8 @@ function ExtensionsTab() {
             <article key={ext.id} className={styles.card}>
               <header className={styles.cardHeader}>
                 <div>
-                  <div className={styles.cardTitle}>{ext.name}</div>
-                  <div className={styles.cardDesc}>{ext.description}</div>
+                  <div className={styles.cardTitle}>{t(`settings.extensions.${ext.id}.name`)}</div>
+                  <div className={styles.cardDesc}>{t(`settings.extensions.${ext.id}.description`)}</div>
                 </div>
                 <StatusBadge status={status} />
               </header>
@@ -235,9 +241,11 @@ function ExtensionsTab() {
               )}
 
               <div className={styles.licenseLine}>
-                License: <span>{ext.license}</span>
-                {ext.licenseNote && (
-                  <span className={styles.licenseNote}> · {ext.licenseNote}</span>
+                {t("settings.extensions.license")}: <span>{ext.license}</span>
+                {ext.hasNote && (
+                  <span className={styles.licenseNote}>
+                    {" "}· {t(`settings.extensions.${ext.id}.note`)}
+                  </span>
                 )}
               </div>
 
@@ -248,7 +256,9 @@ function ExtensionsTab() {
                     onClick={() => install(ext.id)}
                     disabled={installing}
                   >
-                    {installing ? "Reinstalling…" : "Reinstall"}
+                    {installing
+                      ? t("settings.extensions.reinstalling")
+                      : t("settings.extensions.reinstall")}
                   </button>
                 ) : (
                   <button
@@ -256,7 +266,9 @@ function ExtensionsTab() {
                     onClick={() => install(ext.id)}
                     disabled={installing}
                   >
-                    {installing ? "Installing…" : "Install via Homebrew"}
+                    {installing
+                      ? t("settings.extensions.installing")
+                      : t("settings.extensions.install")}
                   </button>
                 )}
               </div>
@@ -269,11 +281,68 @@ function ExtensionsTab() {
 }
 
 function StatusBadge({ status }: { status?: ExtensionStatus }) {
+  const { t } = useTranslation();
   if (!status) {
-    return <span className={styles.badge}>Checking…</span>;
+    return <span className={styles.badge}>{t("settings.extensions.checking")}</span>;
   }
   if (status.installed) {
-    return <span className={`${styles.badge} ${styles.badgeOk}`}>Installed</span>;
+    return (
+      <span className={`${styles.badge} ${styles.badgeOk}`}>
+        {t("settings.extensions.installed")}
+      </span>
+    );
   }
-  return <span className={`${styles.badge} ${styles.badgeWarn}`}>Not installed</span>;
+  return (
+    <span className={`${styles.badge} ${styles.badgeWarn}`}>
+      {t("settings.extensions.notInstalled")}
+    </span>
+  );
+}
+
+function AboutTab() {
+  const { t } = useTranslation();
+  const [version, setVersion] = useState<string>("—");
+  const [tauriVersion, setTauriVersion] = useState<string>("—");
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setVersion(await getVersion());
+      } catch {
+        setVersion("dev");
+      }
+      try {
+        setTauriVersion(await getTauriVersion());
+      } catch {
+        setTauriVersion("—");
+      }
+    })();
+  }, []);
+
+  return (
+    <div className={styles.pane}>
+      <h2 className={styles.paneTitle}>{t("settings.about.title")}</h2>
+      <div className={styles.aboutHero}>
+        <div className={styles.aboutName}>gifcat</div>
+        <div className={styles.aboutTagline}>{t("settings.about.tagline")}</div>
+      </div>
+
+      <section className={styles.section}>
+        <div className={styles.row}>
+          <div className={styles.rowLabel}>{t("settings.about.version")}</div>
+          <div className={styles.rowValue}>{version}</div>
+        </div>
+        <div className={styles.divider} />
+        <div className={styles.row}>
+          <div className={styles.rowLabel}>{t("settings.about.build")}</div>
+          <div className={styles.rowValue}>Tauri {tauriVersion}</div>
+        </div>
+        <div className={styles.divider} />
+        <div className={styles.row}>
+          <div className={styles.rowLabel}>{t("settings.about.license")}</div>
+          <div className={styles.rowValue}>MIT</div>
+        </div>
+      </section>
+    </div>
+  );
 }

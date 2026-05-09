@@ -1,0 +1,95 @@
+{
+  "toolbar": {
+    "openGif": "Open GIF",
+    "loading": "Loading...",
+    "addImage": "Add Image",
+    "addText": "Add Text",
+    "addGif": "Add GIF",
+    "watermark": "Watermark",
+    "quality": "Quality",
+    "qualityStandard": "Standard",
+    "qualityHigh": "High (gifski)",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "settings": "Settings",
+    "rasterizing": "Rasterizing {{done}}/{{total}}",
+    "writingFrames": "Writing {{count}} frames...",
+    "encoding": "Encoding GIF...",
+    "done": "Done"
+  },
+  "properties": {
+    "empty": "Select an overlay to edit",
+    "x": "X",
+    "y": "Y",
+    "scale": "Scale",
+    "rotation": "Rotation (deg)",
+    "opacity": "Opacity",
+    "timing": "Timing",
+    "startMs": "Start (ms)",
+    "endMs": "End (ms)",
+    "fadeIn": "Fade In",
+    "fadeOut": "Fade Out",
+    "delete": "Delete Overlay",
+    "text": "Text",
+    "content": "Content",
+    "font": "Font",
+    "size": "Size",
+    "color": "Color",
+    "align": "Align",
+    "alignLeft": "Left",
+    "alignCenter": "Center",
+    "alignRight": "Right",
+    "strokeColor": "Stroke color",
+    "strokeWidth": "Stroke width",
+    "shadowColor": "Shadow color",
+    "shadowBlur": "Shadow blur"
+  },
+  "timeline": {
+    "play": "Play",
+    "pause": "Pause"
+  },
+  "settings": {
+    "title": "Settings",
+    "tabs": {
+      "general": "General",
+      "extensions": "Extensions",
+      "about": "About"
+    },
+    "general": {
+      "title": "General",
+      "language": "Language",
+      "languageHint": "Restart the editor for menus to fully refresh.",
+      "launchAtLogin": "Launch at login",
+      "launchAtLoginHint": "Open gifcat automatically when you sign in."
+    },
+    "extensions": {
+      "title": "Extensions",
+      "subtitle": "Runtime tools gifcat can call when you export. Install through Homebrew; the exact command is shown before it runs.",
+      "checking": "Checking…",
+      "installed": "Installed",
+      "notInstalled": "Not installed",
+      "install": "Install via Homebrew",
+      "installing": "Installing…",
+      "reinstall": "Reinstall",
+      "reinstalling": "Reinstalling…",
+      "license": "License",
+      "ffmpeg": {
+        "name": "ffmpeg",
+        "description": "Required for standard GIF export."
+      },
+      "gifski": {
+        "name": "gifski",
+        "description": "Optional. Higher-quality GIF encoder for the High Quality export mode.",
+        "note": "Installed via your local package manager; gifcat does not distribute the binary."
+      }
+    },
+    "about": {
+      "title": "About",
+      "version": "Version",
+      "build": "Build",
+      "tagline": "An open-source GIF editor.",
+      "repository": "Repository",
+      "license": "License"
+    }
+  }
+}

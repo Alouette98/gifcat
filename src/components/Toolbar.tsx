@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FolderOpen, ImagePlus, Type, Film, Stamp, Download, Settings } from "lucide-react";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
@@ -24,6 +25,7 @@ import styles from "./Toolbar.module.css";
 const EXPORT_FPS = 25;
 
 export function Toolbar() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -212,7 +214,7 @@ export function Toolbar() {
     try {
       const framesDir = await createExportTempdir();
 
-      setStatus("Rasterizing frames...");
+      setStatus(t("toolbar.rasterizing", { done: 0, total: 0 }));
       const frames = await rasterizeFrames({
         width: project.canvas.width,
         height: project.canvas.height,
@@ -222,23 +224,23 @@ export function Toolbar() {
         fps: EXPORT_FPS,
         overlays: project.overlays.filter((o) => o.visible),
         onProgress: (done, total) => {
-          setStatus(`Rasterizing ${done}/${total}`);
+          setStatus(t("toolbar.rasterizing", { done, total }));
         },
       });
 
-      setStatus(`Writing ${frames.length} frames...`);
+      setStatus(t("toolbar.writingFrames", { count: frames.length }));
       for (const f of frames) {
         await writeExportFrame(framesDir, f.index, f.png);
       }
 
-      setStatus("Encoding GIF...");
+      setStatus(t("toolbar.encoding"));
       await exportGif({
         outputPath,
         framesDir,
         fps: EXPORT_FPS,
         quality,
       });
-      setStatus("Done");
+      setStatus(t("toolbar.done"));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setStatus(null);
@@ -249,44 +251,44 @@ export function Toolbar() {
 
   return (
     <div className={styles.toolbar}>
-      <button onClick={handleOpenGif} disabled={loading} title="Open GIF">
+      <button onClick={handleOpenGif} disabled={loading} title={t("toolbar.openGif")}>
         <FolderOpen size={16} />
         <span className={styles.label}>
-          {loading ? "Loading..." : "Open GIF"}
+          {loading ? t("toolbar.loading") : t("toolbar.openGif")}
         </span>
       </button>
       {durationMs > 0 && (
         <>
-          <button onClick={handleAddImage} title="Add Image">
+          <button onClick={handleAddImage} title={t("toolbar.addImage")}>
             <ImagePlus size={16} />
-            <span className={styles.label}>Add Image</span>
+            <span className={styles.label}>{t("toolbar.addImage")}</span>
           </button>
-          <button onClick={handleAddText} title="Add Text">
+          <button onClick={handleAddText} title={t("toolbar.addText")}>
             <Type size={16} />
-            <span className={styles.label}>Add Text</span>
+            <span className={styles.label}>{t("toolbar.addText")}</span>
           </button>
-          <button onClick={handleAddGif} title="Add GIF">
+          <button onClick={handleAddGif} title={t("toolbar.addGif")}>
             <Film size={16} />
-            <span className={styles.label}>Add GIF</span>
+            <span className={styles.label}>{t("toolbar.addGif")}</span>
           </button>
-          <button onClick={handleAddWatermark} title="Watermark">
+          <button onClick={handleAddWatermark} title={t("toolbar.watermark")}>
             <Stamp size={16} />
-            <span className={styles.label}>Watermark</span>
+            <span className={styles.label}>{t("toolbar.watermark")}</span>
           </button>
-          <label className={styles.quality} title="Export quality">
-            <span className={styles.label}>Quality</span>
+          <label className={styles.quality} title={t("toolbar.quality")}>
+            <span className={styles.label}>{t("toolbar.quality")}</span>
             <select
               value={quality}
               onChange={(e) => setQuality(e.target.value as "standard" | "high")}
             >
-              <option value="standard">Standard</option>
-              <option value="high">High (gifski)</option>
+              <option value="standard">{t("toolbar.qualityStandard")}</option>
+              <option value="high">{t("toolbar.qualityHigh")}</option>
             </select>
           </label>
-          <button onClick={handleExport} disabled={loading} title="Export">
+          <button onClick={handleExport} disabled={loading} title={t("toolbar.export")}>
             <Download size={16} />
             <span className={styles.label}>
-              {loading ? "Exporting..." : "Export"}
+              {loading ? t("toolbar.exporting") : t("toolbar.export")}
             </span>
           </button>
         </>
@@ -296,7 +298,7 @@ export function Toolbar() {
       <button
         className={styles.iconBtn}
         onClick={() => invoke("open_settings_window")}
-        title="Settings"
+        title={t("toolbar.settings")}
       >
         <Settings size={16} />
       </button>
