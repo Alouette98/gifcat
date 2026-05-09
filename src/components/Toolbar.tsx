@@ -248,30 +248,32 @@ export function Toolbar() {
 
   return (
     <div className={styles.toolbar}>
-      <button onClick={handleOpenGif} disabled={loading}>
+      <button onClick={handleOpenGif} disabled={loading} title="Open GIF">
         <FolderOpen size={16} />
-        {loading ? "Loading..." : "Open GIF"}
+        <span className={styles.label}>
+          {loading ? "Loading..." : "Open GIF"}
+        </span>
       </button>
       {durationMs > 0 && (
         <>
-          <button onClick={handleAddImage}>
+          <button onClick={handleAddImage} title="Add Image">
             <ImagePlus size={16} />
-            Add Image
+            <span className={styles.label}>Add Image</span>
           </button>
-          <button onClick={handleAddText}>
+          <button onClick={handleAddText} title="Add Text">
             <Type size={16} />
-            Add Text
+            <span className={styles.label}>Add Text</span>
           </button>
-          <button onClick={handleAddGif}>
+          <button onClick={handleAddGif} title="Add GIF">
             <Film size={16} />
-            Add GIF
+            <span className={styles.label}>Add GIF</span>
           </button>
-          <button onClick={handleAddWatermark}>
+          <button onClick={handleAddWatermark} title="Watermark">
             <Stamp size={16} />
-            Watermark
+            <span className={styles.label}>Watermark</span>
           </button>
-          <label className={styles.quality}>
-            Quality
+          <label className={styles.quality} title="Export quality">
+            <span className={styles.label}>Quality</span>
             <select
               value={quality}
               onChange={(e) => setQuality(e.target.value as "standard" | "high")}
@@ -280,9 +282,11 @@ export function Toolbar() {
               <option value="high">High (gifski)</option>
             </select>
           </label>
-          <button onClick={handleExport} disabled={loading}>
+          <button onClick={handleExport} disabled={loading} title="Export">
             <Download size={16} />
-            {loading ? "Exporting..." : "Export"}
+            <span className={styles.label}>
+              {loading ? "Exporting..." : "Export"}
+            </span>
           </button>
         </>
       )}
