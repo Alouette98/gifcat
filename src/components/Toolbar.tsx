@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { FolderOpen, ImagePlus, Type, Film, Stamp, Download } from "lucide-react";
+import { FolderOpen, ImagePlus, Type, Film, Stamp, Download, Settings } from "lucide-react";
 import { open, save } from "@tauri-apps/plugin-dialog";
+import { invoke } from "@tauri-apps/api/core";
 import { decodeGif, framesToBitmaps } from "../ipc/gif";
 import {
   createExportTempdir,
@@ -292,6 +293,13 @@ export function Toolbar() {
       )}
       {error && <span className={styles.status}>{error}</span>}
       {!error && status && <span className={styles.status}>{status}</span>}
+      <button
+        className={styles.iconBtn}
+        onClick={() => invoke("open_settings_window")}
+        title="Settings"
+      >
+        <Settings size={16} />
+      </button>
     </div>
   );
 }

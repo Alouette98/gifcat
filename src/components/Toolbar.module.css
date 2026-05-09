@@ -70,6 +70,27 @@
   display: inline;
 }
 
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #a6adc8;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  flex: 0 0 auto;
+}
+
+.iconBtn:hover {
+  background: #313244;
+  color: #cdd6f4;
+}
+
 @media (max-width: 720px) {
   .toolbar button {
     padding: 6px 8px;

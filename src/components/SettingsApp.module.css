@@ -1,0 +1,302 @@
+.root {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.rail {
+  width: 170px;
+  flex-shrink: 0;
+  background: #181825;
+  border-right: 1px solid #313244;
+  padding: 20px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.brand {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #6c7086;
+  text-transform: uppercase;
+  padding: 0 8px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.railItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #a6adc8;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.railItem:hover {
+  background: #313244;
+  color: #cdd6f4;
+}
+
+.railItemActive,
+.railItemActive:hover {
+  background: #45475a;
+  color: #cdd6f4;
+}
+
+.railIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  opacity: 0.85;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.pane {
+  padding: 28px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.paneTitle {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  color: #cdd6f4;
+}
+
+.paneSubtitle {
+  font-size: 12px;
+  color: #a6adc8;
+  margin: 0;
+  line-height: 1.5;
+  max-width: 420px;
+}
+
+.section {
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 10px;
+  padding: 4px 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+}
+
+.rowLabel {
+  font-size: 13px;
+  color: #cdd6f4;
+}
+
+.rowHint {
+  font-size: 11px;
+  color: #7f849c;
+  margin-top: 2px;
+}
+
+.rowValue {
+  font-size: 13px;
+  color: #a6adc8;
+  font-variant-numeric: tabular-nums;
+}
+
+.divider {
+  height: 1px;
+  background: #313244;
+  margin: 0 -16px;
+}
+
+.toggle {
+  position: relative;
+  width: 36px;
+  height: 22px;
+  border-radius: 999px;
+  background: #45475a;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  padding: 0;
+}
+
+.toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggleOn {
+  background: #74c7ec;
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: #cdd6f4;
+  border-radius: 50%;
+  transition: left 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.toggleOn .toggleKnob {
+  left: 16px;
+  background: #11111b;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card {
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cdd6f4;
+}
+
+.cardDesc {
+  font-size: 12px;
+  color: #a6adc8;
+  margin-top: 2px;
+  line-height: 1.45;
+}
+
+.meta {
+  font-size: 12px;
+  color: #cdd6f4;
+  font-variant-numeric: tabular-nums;
+}
+
+.metaPath {
+  font-size: 11px;
+  color: #7f849c;
+  font-family: "SF Mono", Menlo, monospace;
+  word-break: break-all;
+}
+
+.licenseLine {
+  font-size: 11px;
+  color: #7f849c;
+}
+
+.licenseLine > span {
+  color: #a6adc8;
+}
+
+.licenseNote {
+  color: #7f849c;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #313244;
+  color: #a6adc8;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.badgeOk {
+  background: #1e3a2c;
+  color: #a6e3a1;
+}
+
+.badgeWarn {
+  background: #3c2e2a;
+  color: #fab387;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  border: 1px solid transparent;
+}
+
+.primaryBtn {
+  background: #74c7ec;
+  color: #11111b;
+  font-weight: 600;
+  border-color: #74c7ec;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background: #89dceb;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryBtn {
+  background: transparent;
+  border-color: #45475a;
+  color: #cdd6f4;
+}
+
+.secondaryBtn:hover:not(:disabled) {
+  background: #313244;
+}
+
+.secondaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
