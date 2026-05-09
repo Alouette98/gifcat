@@ -1,4 +1,23 @@
 {
+  "canvas": {
+    "empty": "GIF を開いて始める"
+  },
+  "overlay": {
+    "defaultImageName": "画像",
+    "defaultTextName": "テキスト",
+    "defaultTextContent": "テキストを入力",
+    "defaultGifName": "GIF",
+    "defaultWatermarkName": "ウォーターマーク"
+  },
+  "loading": {
+    "alt": "読み込みアニメーション",
+    "decoding": "GIF をデコード中",
+    "preparing": "フレームを準備中",
+    "rasterizing": "ラスタライズ中",
+    "writingFrames": "フレームを書き込み中",
+    "encoding": "GIF をエンコード中",
+    "frameProgress": "{{done}} / {{total}}"
+  },
   "toolbar": {
     "openGif": "GIF を開く",
     "loading": "読み込み中…",

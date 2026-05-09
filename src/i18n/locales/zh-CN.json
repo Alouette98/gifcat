@@ -1,4 +1,23 @@
 {
+  "canvas": {
+    "empty": "打开一个 GIF 开始编辑"
+  },
+  "overlay": {
+    "defaultImageName": "图片",
+    "defaultTextName": "文本",
+    "defaultTextContent": "在此输入文字",
+    "defaultGifName": "GIF",
+    "defaultWatermarkName": "水印"
+  },
+  "loading": {
+    "alt": "加载动画",
+    "decoding": "正在解码 GIF",
+    "preparing": "正在准备帧",
+    "rasterizing": "正在栅格化",
+    "writingFrames": "正在写入帧",
+    "encoding": "正在编码 GIF",
+    "frameProgress": "{{done}} / {{total}}"
+  },
   "toolbar": {
     "openGif": "打开 GIF",
     "loading": "载入中…",

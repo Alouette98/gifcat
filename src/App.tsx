@@ -3,6 +3,7 @@ import { Canvas } from "./components/Canvas";
 import { Timeline } from "./components/Timeline";
 import { PropertiesPanel } from "./components/PropertiesPanel";
 import { SettingsApp } from "./components/SettingsApp";
+import { LoadingOverlay } from "./components/LoadingOverlay";
 import styles from "./App.module.css";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <PropertiesPanel />
       </div>
       <Timeline />
+      <LoadingOverlay />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useCallback, type MouseEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
 import { pickFrameIndex } from "../engine/framePicker";
@@ -39,6 +40,7 @@ function drawSelectionBox(ctx: CanvasRenderingContext2D, overlay: Overlay) {
 }
 
 export function Canvas() {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
@@ -210,7 +212,7 @@ export function Canvas() {
   if (frames.length === 0) {
     return (
       <div className={styles.canvasWrap} ref={wrapRef}>
-        <span className={styles.empty}>Open a GIF to begin</span>
+        <span className={styles.empty}>{t("canvas.empty")}</span>
       </div>
     );
   }

@@ -13,6 +13,7 @@ import { rasterizeFrames } from "../engine/rasterize";
 import { onMenuEvent } from "../ipc/menu";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
+import { useUIStore } from "../store/uiStore";
 import {
   createTransform,
   createTiming,
@@ -67,9 +68,19 @@ export function Toolbar() {
 
     const path = selected as string;
     setLoading(true);
+    const ui = useUIStore.getState();
+    ui.showLoading(t("loading.decoding"), t("loading.preparing"));
     try {
       const decoded = await decodeGif(path);
-      const frames = await framesToBitmaps(decoded);
+      ui.updateLoading({ detail: t("loading.preparing"), progress: 0 });
+      // yield to allow paint
+      await new Promise((r) => setTimeout(r, 0));
+      const frames = await framesToBitmaps(decoded, (done, total) => {
+        ui.updateLoading({
+          detail: t("loading.frameProgress", { done, total }),
+          progress: done / total,
+        });
+      });
       loadGif({
         sourcePath: path,
         width: decoded.width,
@@ -91,6 +102,7 @@ export function Toolbar() {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
+      ui.hideLoading();
     }
   }
 
@@ -112,7 +124,7 @@ export function Toolbar() {
       const overlay: ImageOverlay = {
         id: generateId(),
         type: "image",
-        name: path.split("/").pop() || "Image",
+        name: path.split("/").pop() || t("overlay.defaultImageName"),
         sourcePath: path,
         bitmap,
         naturalWidth: bitmap.width,
@@ -135,8 +147,8 @@ export function Toolbar() {
     const overlay: TextOverlay = {
       id: generateId(),
       type: "text",
-      name: "Text",
-      text: "Your text",
+      name: t("overlay.defaultTextName"),
+      text: t("overlay.defaultTextContent"),
       fontFamily: "sans-serif",
       fontSize: 48,
       color: "#ffffff",
@@ -171,7 +183,7 @@ export function Toolbar() {
       const overlay: GifOverlay = {
         id: generateId(),
         type: "gif",
-        name: path.split("/").pop() || "GIF",
+        name: path.split("/").pop() || t("overlay.defaultGifName"),
         sourcePath: path,
         frames: bitmaps,
         delaysMs: decoded.delaysMs,
@@ -232,10 +244,11 @@ export function Toolbar() {
     if (!outputPath) return;
 
     setLoading(true);
+    const ui = useUIStore.getState();
+    ui.showLoading(t("loading.rasterizing"));
     try {
       const framesDir = await createExportTempdir();
 
-      setStatus(t("toolbar.rasterizing", { done: 0, total: 0 }));
       const frames = await rasterizeFrames({
         width: project.canvas.width,
         height: project.canvas.height,
@@ -245,16 +258,23 @@ export function Toolbar() {
         fps: EXPORT_FPS,
         overlays: project.overlays.filter((o) => o.visible),
         onProgress: (done, total) => {
-          setStatus(t("toolbar.rasterizing", { done, total }));
+          ui.updateLoading({
+            detail: t("loading.frameProgress", { done, total }),
+            progress: done / total,
+          });
         },
       });
 
-      setStatus(t("toolbar.writingFrames", { count: frames.length }));
-      for (const f of frames) {
-        await writeExportFrame(framesDir, f.index, f.png);
+      ui.showLoading(t("loading.writingFrames"));
+      for (let i = 0; i < frames.length; i++) {
+        await writeExportFrame(framesDir, frames[i].index, frames[i].png);
+        ui.updateLoading({
+          detail: t("loading.frameProgress", { done: i + 1, total: frames.length }),
+          progress: (i + 1) / frames.length,
+        });
       }
 
-      setStatus(t("toolbar.encoding"));
+      ui.showLoading(t("loading.encoding"));
       await exportGif({
         outputPath,
         framesDir,
@@ -267,6 +287,7 @@ export function Toolbar() {
       setStatus(null);
     } finally {
       setLoading(false);
+      ui.hideLoading();
     }
   }
 
@@ -316,6 +337,7 @@ export function Toolbar() {
       )}
       {error && <span className={styles.status}>{error}</span>}
       {!error && status && <span className={styles.status}>{status}</span>}
+      <span className={styles.dragSpacer} aria-hidden />
       <button
         className={styles.iconBtn}
         onClick={() => invoke("open_settings_window")}

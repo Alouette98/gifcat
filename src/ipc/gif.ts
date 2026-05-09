@@ -31,12 +31,15 @@ export async function decodeGif(path: string): Promise<DecodedGif> {
 
 export async function framesToBitmaps(
   decoded: DecodedGif,
+  onProgress?: (done: number, total: number) => void,
 ): Promise<ImageBitmap[]> {
   const { width, height, framesRgba } = decoded;
   const bitmaps: ImageBitmap[] = new Array(framesRgba.length);
   for (let i = 0; i < framesRgba.length; i++) {
     const imageData = new ImageData(framesRgba[i], width, height);
     bitmaps[i] = await createImageBitmap(imageData);
+    if (onProgress) onProgress(i + 1, framesRgba.length);
+    if ((i & 7) === 0) await new Promise((r) => setTimeout(r, 0));
   }
   return bitmaps;
 }

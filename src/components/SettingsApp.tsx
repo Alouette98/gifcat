@@ -6,6 +6,7 @@ import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { SlidersHorizontal, Puzzle, Info } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../i18n";
 import { useThemeStore, type ThemePref } from "../store/themeStore";
+import logoPng from "../assets/logo.png";
 import styles from "./SettingsApp.module.css";
 
 type Tab = "general" | "extensions" | "about";
@@ -370,8 +371,11 @@ function AboutTab() {
     <div className={styles.pane}>
       <h2 className={styles.paneTitle}>{t("settings.about.title")}</h2>
       <div className={styles.aboutHero}>
-        <div className={styles.aboutName}>gifcat</div>
-        <div className={styles.aboutTagline}>{t("settings.about.tagline")}</div>
+        <img className={styles.aboutLogo} src={logoPng} alt="gifcat" />
+        <div className={styles.aboutHeroText}>
+          <div className={styles.aboutName}>gifcat</div>
+          <div className={styles.aboutTagline}>{t("settings.about.tagline")}</div>
+        </div>
       </div>
 
       <section className={styles.section}>

@@ -1,4 +1,23 @@
 {
+  "canvas": {
+    "empty": "Open a GIF to begin"
+  },
+  "overlay": {
+    "defaultImageName": "Image",
+    "defaultTextName": "Text",
+    "defaultTextContent": "Your text",
+    "defaultGifName": "GIF",
+    "defaultWatermarkName": "Watermark"
+  },
+  "loading": {
+    "alt": "Loading cat",
+    "decoding": "Decoding GIF",
+    "preparing": "Preparing frames",
+    "rasterizing": "Rasterizing frames",
+    "writingFrames": "Writing frames",
+    "encoding": "Encoding GIF",
+    "frameProgress": "{{done}} / {{total}}"
+  },
   "toolbar": {
     "openGif": "Open GIF",
     "loading": "Loading...",
