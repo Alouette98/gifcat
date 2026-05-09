@@ -4,8 +4,16 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: #1e1e2e;
-  border-bottom: 1px solid #313244;
+  padding-left: 84px;
+  background: var(--bg-toolbar);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border-default);
+  -webkit-app-region: drag;
+}
+
+.toolbar > * {
+  -webkit-app-region: no-drag;
 }
 
 .toolbar button {
@@ -13,19 +21,20 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: #313244;
-  border: 1px solid #45475a;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
-  color: #cdd6f4;
+  color: var(--text-primary);
   font-size: 13px;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.12s, border-color 0.12s;
   flex: 0 0 auto;
 }
 
-.toolbar button:hover {
-  background: #45475a;
+.toolbar button:hover:not(:disabled) {
+  background: var(--hover-bg);
+  border-color: var(--border-default);
 }
 
 .toolbar button:disabled {
@@ -36,7 +45,7 @@
 .status {
   margin-left: auto;
   font-size: 12px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -48,10 +57,10 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  background: #313244;
-  border: 1px solid #45475a;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
-  color: #cdd6f4;
+  color: var(--text-primary);
   font-size: 12px;
   white-space: nowrap;
   flex: 0 0 auto;
@@ -59,7 +68,7 @@
 
 .quality select {
   background: transparent;
-  color: #cdd6f4;
+  color: var(--text-primary);
   border: none;
   font-size: 12px;
   cursor: pointer;
@@ -77,18 +86,18 @@
   width: 32px;
   height: 30px;
   padding: 0;
-  background: transparent;
-  border: 1px solid transparent;
+  background: transparent !important;
+  border: 1px solid transparent !important;
   border-radius: 6px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.12s, color 0.12s;
   flex: 0 0 auto;
 }
 
 .iconBtn:hover {
-  background: #313244;
-  color: #cdd6f4;
+  background: var(--hover-bg) !important;
+  color: var(--text-primary);
 }
 
 @media (max-width: 720px) {

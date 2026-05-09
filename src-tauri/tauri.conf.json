@@ -12,9 +12,19 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "gifcat",
-        "width": 800,
-        "height": 600
+        "width": 1000,
+        "height": 680,
+        "minWidth": 720,
+        "minHeight": 480,
+        "transparent": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "windowEffects": {
+          "effects": ["sidebar"],
+          "state": "followsWindowActiveState"
+        }
       }
     ],
     "security": {

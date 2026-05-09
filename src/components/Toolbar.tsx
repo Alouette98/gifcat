@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FolderOpen, ImagePlus, Type, Film, Stamp, Download, Settings } from "lucide-react";
 import { open, save } from "@tauri-apps/plugin-dialog";
@@ -10,6 +10,7 @@ import {
   writeExportFrame,
 } from "../ipc/export";
 import { rasterizeFrames } from "../engine/rasterize";
+import { onMenuEvent } from "../ipc/menu";
 import { usePlaybackStore } from "../store/playbackStore";
 import { useProjectStore } from "../store/projectStore";
 import {
@@ -34,6 +35,26 @@ export function Toolbar() {
   const durationMs = usePlaybackStore((s) => s.durationMs);
   const setBase = useProjectStore((s) => s.setBase);
   const apply = useProjectStore((s) => s.apply);
+
+  useEffect(() => {
+    const offs: Array<() => void> = [];
+    offs.push(onMenuEvent("file:open", () => handleOpenGif()));
+    offs.push(onMenuEvent("file:export", () => handleExport()));
+    offs.push(onMenuEvent("view:add_image", () => handleAddImage()));
+    offs.push(onMenuEvent("view:add_text", () => handleAddText()));
+    offs.push(onMenuEvent("view:add_gif", () => handleAddGif()));
+    offs.push(onMenuEvent("view:watermark", () => handleAddWatermark()));
+    offs.push(
+      onMenuEvent("view:play_pause", () => {
+        const s = usePlaybackStore.getState();
+        s.setPlaying(!s.playing);
+      }),
+    );
+    offs.push(onMenuEvent("edit:undo", () => useProjectStore.getState().undo()));
+    offs.push(onMenuEvent("edit:redo", () => useProjectStore.getState().redo()));
+    return () => offs.forEach((off) => off());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleOpenGif() {
     setError(null);

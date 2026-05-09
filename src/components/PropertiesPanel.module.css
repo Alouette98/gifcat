@@ -2,8 +2,10 @@
   width: 280px;
   flex-shrink: 0;
   height: 100%;
-  background: #1e1e2e;
-  border-left: 1px solid #313244;
+  background: var(--bg-panel);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-left: 1px solid var(--border-default);
   padding: 14px 14px 18px;
   display: flex;
   flex-direction: column;
@@ -14,7 +16,7 @@
 }
 
 .empty {
-  color: #6c7086;
+  color: var(--text-tertiary);
   font-size: 12px;
   padding: 20px 0;
   text-align: center;
@@ -23,7 +25,7 @@
 .panel h3 {
   font-size: 13px;
   font-weight: 600;
-  color: #cdd6f4;
+  color: var(--text-primary);
   margin: 0 0 2px;
   letter-spacing: 0.2px;
 }
@@ -51,7 +53,7 @@
 .field > label,
 .row > label {
   font-size: 11px;
-  color: #a6adc8;
+  color: var(--text-secondary);
 }
 
 .row > label {
@@ -67,10 +69,10 @@
 .row input[type="range"],
 .row select {
   width: 100%;
-  background: #313244;
-  border: 1px solid #45475a;
-  border-radius: 4px;
-  color: #cdd6f4;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  color: var(--text-primary);
   font-size: 12px;
   padding: 4px 6px;
   box-sizing: border-box;
@@ -81,7 +83,7 @@
 .row input[type="color"] {
   width: 32px;
   height: 26px;
-  border: 1px solid #45475a;
+  border: 1px solid var(--border-default);
   border-radius: 4px;
   background: none;
   padding: 0;
@@ -99,14 +101,14 @@
 }
 
 .section {
-  border-top: 1px solid #313244;
+  border-top: 1px solid var(--border-subtle);
   padding-top: 10px;
   margin-top: 2px;
 }
 
 .sectionLabel {
   font-size: 10px;
-  color: #6c7086;
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.6px;
   margin-bottom: 6px;
@@ -115,14 +117,14 @@
 .deleteBtn {
   margin-top: 8px;
   padding: 6px 10px;
-  background: #45475a;
-  border: 1px solid #585b70;
-  border-radius: 4px;
-  color: #f38ba8;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 5px;
+  color: var(--danger);
   font-size: 12px;
   cursor: pointer;
 }
 
 .deleteBtn:hover {
-  background: #585b70;
+  background: var(--hover-bg);
 }

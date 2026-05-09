@@ -1,22 +1,49 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getVersion, getTauriVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { SlidersHorizontal, Puzzle, Info } from "lucide-react";
 import { SUPPORTED_LANGUAGES, type LanguageCode } from "../i18n";
+import { useThemeStore, type ThemePref } from "../store/themeStore";
 import styles from "./SettingsApp.module.css";
 
 type Tab = "general" | "extensions" | "about";
 
+const TAB_ORDER: Tab[] = ["general", "extensions", "about"];
+const RAIL_ITEM_HEIGHT = 38;
+
 export function SettingsApp() {
   const { t } = useTranslation();
   const [tab, setTab] = useState<Tab>("general");
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = contentRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      const totalH = Math.max(360, Math.min(720, el.scrollHeight + 12));
+      const totalW = 560;
+      getCurrentWindow()
+        .setSize(new LogicalSize(totalW, totalH))
+        .catch(() => {});
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [tab]);
+
+  const indicatorTop = TAB_ORDER.indexOf(tab) * RAIL_ITEM_HEIGHT;
 
   return (
     <div className={styles.root}>
       <aside className={styles.rail}>
         <div className={styles.brand}>{t("settings.title")}</div>
         <nav className={styles.nav}>
+          <span
+            className={styles.navIndicator}
+            style={{ top: `${indicatorTop}px` }}
+            aria-hidden
+          />
           <RailItem
             active={tab === "general"}
             onClick={() => setTab("general")}
@@ -38,9 +65,11 @@ export function SettingsApp() {
         </nav>
       </aside>
       <main className={styles.content}>
-        {tab === "general" && <GeneralTab />}
-        {tab === "extensions" && <ExtensionsTab />}
-        {tab === "about" && <AboutTab />}
+        <div key={tab} ref={contentRef} className={styles.contentInner}>
+          {tab === "general" && <GeneralTab />}
+          {tab === "extensions" && <ExtensionsTab />}
+          {tab === "about" && <AboutTab />}
+        </div>
       </main>
     </div>
   );
@@ -70,6 +99,8 @@ function RailItem({
 
 function GeneralTab() {
   const { t, i18n } = useTranslation();
+  const themePref = useThemeStore((s) => s.pref);
+  const setThemePref = useThemeStore((s) => s.setPref);
   const [launchAtLogin, setLaunchAtLogin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
@@ -106,6 +137,22 @@ function GeneralTab() {
       <h2 className={styles.paneTitle}>{t("settings.general.title")}</h2>
 
       <section className={styles.section}>
+        <div className={styles.row}>
+          <div>
+            <div className={styles.rowLabel}>{t("settings.general.appearance")}</div>
+            <div className={styles.rowHint}>{t("settings.general.appearanceHint")}</div>
+          </div>
+          <select
+            className={styles.select}
+            value={themePref}
+            onChange={(e) => setThemePref(e.target.value as ThemePref)}
+          >
+            <option value="system">{t("settings.general.themeSystem")}</option>
+            <option value="light">{t("settings.general.themeLight")}</option>
+            <option value="dark">{t("settings.general.themeDark")}</option>
+          </select>
+        </div>
+        <div className={styles.divider} />
         <div className={styles.row}>
           <div>
             <div className={styles.rowLabel}>{t("settings.general.language")}</div>

@@ -3,8 +3,10 @@
   align-items: center;
   gap: 10px;
   padding: 8px 12px;
-  background: #1e1e2e;
-  border-top: 1px solid #313244;
+  background: var(--bg-toolbar);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--border-default);
 }
 
 .timeline button {
@@ -13,27 +15,27 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: #313244;
-  border: 1px solid #45475a;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 6px;
-  color: #cdd6f4;
+  color: var(--text-primary);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.12s;
 }
 
 .timeline button:hover {
-  background: #45475a;
+  background: var(--hover-bg);
 }
 
 .scrubber {
   flex: 1;
   height: 4px;
-  accent-color: #89b4fa;
+  accent-color: var(--accent);
 }
 
 .time {
   font-size: 12px;
-  color: #a6adc8;
+  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
   min-width: 90px;
   text-align: right;
