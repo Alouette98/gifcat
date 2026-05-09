@@ -4,6 +4,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{SystemTime, UNIX_EPOCH};
+use tauri::ipc::{InvokeBody, Request};
 use tauri::{AppHandle, Emitter};
 
 #[derive(Deserialize, Default, Clone, Copy, PartialEq, Eq)]
@@ -25,13 +26,6 @@ pub struct ExportRequest {
     pub frames_dir: String,
 }
 
-#[derive(Deserialize)]
-pub struct WriteFrameRequest {
-    pub dir: String,
-    pub index: u32,
-    pub png: Vec<u8>,
-}
-
 #[tauri::command]
 pub fn export_create_tempdir() -> Result<String, String> {
     let nanos = SystemTime::now()
@@ -43,16 +37,34 @@ pub fn export_create_tempdir() -> Result<String, String> {
     Ok(dir.to_string_lossy().into_owned())
 }
 
-#[tauri::command]
-pub fn export_write_frame(request: WriteFrameRequest) -> Result<(), String> {
-    let dir = PathBuf::from(&request.dir);
-    if !dir.is_dir() {
+fn write_frame_to_disk(dir: &str, index: u32, bytes: &[u8]) -> Result<(), String> {
+    let dir_path = PathBuf::from(dir);
+    if !dir_path.is_dir() {
         return Err("frames dir does not exist".into());
     }
-    let path = dir.join(format!("frame-{:05}.png", request.index));
+    let path = dir_path.join(format!("frame-{index:05}.png"));
     let mut f = fs::File::create(&path).map_err(|e| format!("create frame: {e}"))?;
-    f.write_all(&request.png).map_err(|e| format!("write frame: {e}"))?;
+    f.write_all(bytes).map_err(|e| format!("write frame: {e}"))?;
     Ok(())
+}
+
+#[tauri::command]
+pub fn export_write_frame(request: Request<'_>) -> Result<(), String> {
+    let bytes = match request.body() {
+        InvokeBody::Raw(b) => b.as_slice(),
+        _ => return Err("expected raw binary body".into()),
+    };
+    let headers = request.headers();
+    let dir = headers
+        .get("x-dir")
+        .and_then(|v| v.to_str().ok())
+        .ok_or_else(|| "missing x-dir header".to_string())?;
+    let index: u32 = headers
+        .get("x-index")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| s.parse().ok())
+        .ok_or_else(|| "missing/invalid x-index header".to_string())?;
+    write_frame_to_disk(dir, index, bytes)
 }
 
 #[tauri::command]
@@ -219,12 +231,8 @@ mod tests {
     #[test]
     fn write_frame_creates_file() {
         let dir = export_create_tempdir().unwrap();
-        let req = WriteFrameRequest {
-            dir: dir.clone(),
-            index: 7,
-            png: vec![137, 80, 78, 71, 13, 10, 26, 10],
-        };
-        export_write_frame(req).unwrap();
+        let bytes: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
+        write_frame_to_disk(&dir, 7, &bytes).unwrap();
         let p = PathBuf::from(&dir).join("frame-00007.png");
         assert!(p.is_file());
         let _ = fs::remove_dir_all(&dir);

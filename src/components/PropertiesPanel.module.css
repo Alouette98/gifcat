@@ -1,26 +1,31 @@
 .panel {
-  position: absolute;
-  top: 48px;
-  right: 8px;
-  width: 240px;
-  max-height: calc(100% - 60px);
-  overflow-y: auto;
+  width: 280px;
+  flex-shrink: 0;
+  height: 100%;
   background: #1e1e2e;
-  border: 1px solid #313244;
-  border-radius: 8px;
-  padding: 12px;
+  border-left: 1px solid #313244;
+  padding: 14px 14px 18px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.empty {
+  color: #6c7086;
+  font-size: 12px;
+  padding: 20px 0;
+  text-align: center;
 }
 
 .panel h3 {
   font-size: 13px;
   font-weight: 600;
   color: #cdd6f4;
-  margin: 0;
+  margin: 0 0 2px;
+  letter-spacing: 0.2px;
 }
 
 .row {
@@ -29,32 +34,53 @@
   gap: 8px;
 }
 
-.row label {
-  font-size: 11px;
-  color: #a6adc8;
-  min-width: 50px;
+.rowGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+  align-items: center;
 }
 
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.field > label,
+.row > label {
+  font-size: 11px;
+  color: #a6adc8;
+}
+
+.row > label {
+  min-width: 56px;
+}
+
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="range"],
+.field select,
+.row input[type="text"],
 .row input[type="number"],
 .row input[type="range"],
-.row input[type="text"],
 .row select {
-  flex: 1;
+  width: 100%;
   background: #313244;
   border: 1px solid #45475a;
   border-radius: 4px;
   color: #cdd6f4;
   font-size: 12px;
-  padding: 3px 6px;
+  padding: 4px 6px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.row input[type="number"] {
-  width: 60px;
-}
-
+.field input[type="color"],
 .row input[type="color"] {
-  width: 28px;
-  height: 24px;
+  width: 32px;
+  height: 26px;
   border: 1px solid #45475a;
   border-radius: 4px;
   background: none;
@@ -62,22 +88,33 @@
   cursor: pointer;
 }
 
+.colorRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.colorRow input[type="text"] {
+  flex: 1;
+}
+
 .section {
   border-top: 1px solid #313244;
-  padding-top: 8px;
+  padding-top: 10px;
+  margin-top: 2px;
 }
 
 .sectionLabel {
-  font-size: 11px;
+  font-size: 10px;
   color: #6c7086;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  letter-spacing: 0.6px;
+  margin-bottom: 6px;
 }
 
 .deleteBtn {
-  margin-top: 4px;
-  padding: 5px 10px;
+  margin-top: 8px;
+  padding: 6px 10px;
   background: #45475a;
   border: 1px solid #585b70;
   border-radius: 4px;

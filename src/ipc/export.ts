@@ -16,8 +16,11 @@ export async function writeExportFrame(
   index: number,
   png: Uint8Array,
 ): Promise<void> {
-  return invoke<void>("export_write_frame", {
-    request: { dir, index, png: Array.from(png) },
+  return invoke<void>("export_write_frame", png, {
+    headers: {
+      "x-dir": dir,
+      "x-index": String(index),
+    },
   });
 }
 
