@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getVersion, getTauriVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
@@ -12,12 +12,13 @@ import styles from "./SettingsApp.module.css";
 type Tab = "general" | "extensions" | "about";
 
 const TAB_ORDER: Tab[] = ["general", "extensions", "about"];
-const RAIL_ITEM_HEIGHT = 38;
 
 export function SettingsApp() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [tab, setTab] = useState<Tab>("general");
   const contentRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [indicator, setIndicator] = useState({ top: 0, height: 30 });
 
   useLayoutEffect(() => {
     const el = contentRef.current;
@@ -33,7 +34,11 @@ export function SettingsApp() {
     return () => ro.disconnect();
   }, [tab]);
 
-  const indicatorTop = TAB_ORDER.indexOf(tab) * RAIL_ITEM_HEIGHT;
+  useLayoutEffect(() => {
+    const el = itemRefs.current[TAB_ORDER.indexOf(tab)];
+    if (!el) return;
+    setIndicator({ top: el.offsetTop, height: el.offsetHeight });
+  }, [tab, i18n.resolvedLanguage]);
 
   return (
     <div className={styles.root}>
@@ -42,22 +47,25 @@ export function SettingsApp() {
         <nav className={styles.nav}>
           <span
             className={styles.navIndicator}
-            style={{ top: `${indicatorTop}px` }}
+            style={{ top: `${indicator.top}px`, height: `${indicator.height}px` }}
             aria-hidden
           />
           <RailItem
+            ref={(el) => { itemRefs.current[0] = el; }}
             active={tab === "general"}
             onClick={() => setTab("general")}
             icon={<SlidersHorizontal size={15} />}
             label={t("settings.tabs.general")}
           />
           <RailItem
+            ref={(el) => { itemRefs.current[1] = el; }}
             active={tab === "extensions"}
             onClick={() => setTab("extensions")}
             icon={<Puzzle size={15} />}
             label={t("settings.tabs.extensions")}
           />
           <RailItem
+            ref={(el) => { itemRefs.current[2] = el; }}
             active={tab === "about"}
             onClick={() => setTab("about")}
             icon={<Info size={15} />}
@@ -76,19 +84,18 @@ export function SettingsApp() {
   );
 }
 
-function RailItem({
-  active,
-  onClick,
-  icon,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-}) {
+const RailItem = forwardRef<
+  HTMLButtonElement,
+  {
+    active: boolean;
+    onClick: () => void;
+    icon: React.ReactNode;
+    label: string;
+  }
+>(function RailItem({ active, onClick, icon, label }, ref) {
   return (
     <button
+      ref={ref}
       className={`${styles.railItem} ${active ? styles.railItemActive : ""}`}
       onClick={onClick}
     >
@@ -96,7 +103,7 @@ function RailItem({
       <span>{label}</span>
     </button>
   );
-}
+});
 
 function GeneralTab() {
   const { t, i18n } = useTranslation();

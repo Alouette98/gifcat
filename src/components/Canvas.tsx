@@ -53,7 +53,6 @@ export function Canvas() {
   const overlays = useProjectStore((s) => s.project.overlays);
   const selectedId = useProjectStore((s) => s.selectedOverlayId);
   const selectOverlay = useProjectStore((s) => s.selectOverlay);
-  const apply = useProjectStore((s) => s.apply);
 
   const toCanvasCoords = useCallback(
     (clientX: number, clientY: number) => {
@@ -82,6 +81,7 @@ export function Canvas() {
         if (alpha <= 0) continue;
         if (hitTest(ov, cx, cy)) {
           selectOverlay(ov.id);
+          useProjectStore.getState().beginTransient();
           dragRef.current = {
             id: ov.id,
             startX: cx,
@@ -98,29 +98,42 @@ export function Canvas() {
   );
 
   useEffect(() => {
+    let raf = 0;
+    let pending: { x: number; y: number } | null = null;
+
+    function flush() {
+      raf = 0;
+      if (!pending || !dragRef.current) return;
+      const store = useProjectStore.getState();
+      const ov = store.project.overlays.find((o) => o.id === dragRef.current!.id);
+      if (!ov) return;
+      store.applyTransient({
+        type: "updateOverlay",
+        id: ov.id,
+        patch: { transform: { ...ov.transform, x: pending.x, y: pending.y } },
+      });
+      pending = null;
+    }
+
     function handleMouseMove(e: globalThis.MouseEvent) {
       if (!dragRef.current) return;
       const { cx, cy } = toCanvasCoords(e.clientX, e.clientY);
       const dx = cx - dragRef.current.startX;
       const dy = cy - dragRef.current.startY;
-      const ov = useProjectStore.getState().project.overlays.find(
-        (o) => o.id === dragRef.current!.id,
-      );
-      if (!ov) return;
-      apply({
-        type: "updateOverlay",
-        id: ov.id,
-        patch: {
-          transform: {
-            ...ov.transform,
-            x: dragRef.current.origX + dx,
-            y: dragRef.current.origY + dy,
-          },
-        },
-      });
+      pending = {
+        x: dragRef.current.origX + dx,
+        y: dragRef.current.origY + dy,
+      };
+      if (raf === 0) raf = requestAnimationFrame(flush);
     }
 
     function handleMouseUp() {
+      if (!dragRef.current) return;
+      if (raf !== 0) {
+        cancelAnimationFrame(raf);
+        flush();
+      }
+      useProjectStore.getState().commitTransient();
       dragRef.current = null;
     }
 
@@ -129,32 +142,48 @@ export function Canvas() {
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
+      if (raf !== 0) cancelAnimationFrame(raf);
     };
-  }, [toCanvasCoords, apply]);
+  }, [toCanvasCoords]);
 
   useEffect(() => {
+    let commitTimer: number | null = null;
+    let started = false;
+
     function handleWheel(e: WheelEvent) {
       if (!selectedId) return;
       e.preventDefault();
-      const ov = useProjectStore.getState().project.overlays.find(
-        (o) => o.id === selectedId,
-      );
+      const store = useProjectStore.getState();
+      const ov = store.project.overlays.find((o) => o.id === selectedId);
       if (!ov) return;
+      if (!started) {
+        store.beginTransient();
+        started = true;
+      }
       const delta = e.deltaY > 0 ? 0.95 : 1.05;
       const newScale = Math.max(0.05, Math.min(10, ov.transform.scale * delta));
-      apply({
+      store.applyTransient({
         type: "updateOverlay",
         id: ov.id,
         patch: { transform: { ...ov.transform, scale: newScale } },
       });
+      if (commitTimer !== null) window.clearTimeout(commitTimer);
+      commitTimer = window.setTimeout(() => {
+        useProjectStore.getState().commitTransient();
+        started = false;
+        commitTimer = null;
+      }, 180);
     }
 
     const wrap = wrapRef.current;
     if (wrap) {
       wrap.addEventListener("wheel", handleWheel, { passive: false });
-      return () => wrap.removeEventListener("wheel", handleWheel);
+      return () => {
+        wrap.removeEventListener("wheel", handleWheel);
+        if (commitTimer !== null) window.clearTimeout(commitTimer);
+      };
     }
-  }, [selectedId, apply]);
+  }, [selectedId]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

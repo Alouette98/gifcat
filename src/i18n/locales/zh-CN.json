@@ -65,7 +65,8 @@
   },
   "timeline": {
     "play": "播放",
-    "pause": "暂停"
+    "pause": "暂停",
+    "base": "底层 GIF"
   },
   "settings": {
     "title": "设置",

@@ -90,6 +90,10 @@ export function drawOverlay(
     ctx.textAlign = txt.align;
     ctx.textBaseline = "middle";
 
+    const boxW = fontSize * Math.max(txt.text.length * 0.6, 1);
+    const anchorX =
+      txt.align === "left" ? -boxW / 2 : txt.align === "right" ? boxW / 2 : 0;
+
     if (txt.shadowBlur > 0) {
       ctx.shadowColor = txt.shadowColor;
       ctx.shadowBlur = txt.shadowBlur * scale;
@@ -98,11 +102,11 @@ export function drawOverlay(
     if (txt.strokeWidth > 0) {
       ctx.strokeStyle = txt.strokeColor;
       ctx.lineWidth = txt.strokeWidth * scale;
-      ctx.strokeText(txt.text, 0, 0);
+      ctx.strokeText(txt.text, anchorX, 0);
     }
 
     ctx.fillStyle = txt.color;
-    ctx.fillText(txt.text, 0, 0);
+    ctx.fillText(txt.text, anchorX, 0);
   }
 
   ctx.restore();

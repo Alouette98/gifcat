@@ -2,7 +2,7 @@ use serde::Serialize;
 use std::path::PathBuf;
 use std::process::Command;
 use tauri::window::{Effect, EffectState, EffectsBuilder};
-use tauri::{AppHandle, Manager, TitleBarStyle, WebviewUrl, WebviewWindowBuilder};
+use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_autostart::ManagerExt;
 
 #[tauri::command]
@@ -21,8 +21,6 @@ pub fn open_settings_window(app: AppHandle) -> Result<(), String> {
         .minimizable(false)
         .maximizable(false)
         .center()
-        .title_bar_style(TitleBarStyle::Overlay)
-        .hidden_title(true)
         .effects(
             EffectsBuilder::new()
                 .effect(Effect::HudWindow)

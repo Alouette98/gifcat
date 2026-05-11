@@ -65,7 +65,8 @@
   },
   "timeline": {
     "play": "Play",
-    "pause": "Pause"
+    "pause": "Pause",
+    "base": "Base GIF"
   },
   "settings": {
     "title": "Settings",

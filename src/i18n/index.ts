@@ -23,11 +23,13 @@ i18n
     resources: {
       en: { translation: en },
       "zh-CN": { translation: zhCN },
+      zh: { translation: zhCN },
       ja: { translation: ja },
     },
     fallbackLng: "zh-CN",
-    supportedLngs: SUPPORTED_LANGUAGES.map((l) => l.code),
+    supportedLngs: ["en", "zh-CN", "zh", "ja"],
     nonExplicitSupportedLngs: true,
+    load: "currentOnly",
     interpolation: { escapeValue: false },
     detection: {
       order: ["localStorage", "navigator"],

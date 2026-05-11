@@ -65,7 +65,8 @@
   },
   "timeline": {
     "play": "再生",
-    "pause": "一時停止"
+    "pause": "一時停止",
+    "base": "ベース GIF"
   },
   "settings": {
     "title": "設定",
