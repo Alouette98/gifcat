@@ -24,8 +24,7 @@ type DragState = {
 
 export function Timeline() {
   const { t } = useTranslation();
-  const { playing, cursorMs, durationMs, togglePlay, setCursorMs } =
-    usePlaybackStore();
+  const { playing, cursorMs, durationMs, togglePlay } = usePlaybackStore();
   const overlays = useProjectStore((s) => s.project.overlays);
   const selectedId = useProjectStore((s) => s.selectedOverlayId);
   const selectOverlay = useProjectStore((s) => s.selectOverlay);
